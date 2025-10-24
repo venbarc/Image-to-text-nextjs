@@ -86,8 +86,8 @@ export default function Home() {
     try {
       console.log('Starting camera for device:', isMobile ? 'mobile' : 'desktop');
       
-      // For desktop: start with front camera (it will auto-switch to back)
-      // For mobile: start with back camera (no auto-switch needed)
+      // Start with the camera that usually shows black first
+      // This way the auto-switch will go to the working camera
       const startingCamera = isMobile ? 'environment' : 'user';
       
       await startCamera(startingCamera);

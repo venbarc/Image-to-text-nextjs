@@ -35,8 +35,8 @@ export const useCamera = () => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         
-        // Wait for video to be ready with better error handling
-        await new Promise((resolve, reject) => {
+        // Wait for video to be ready with a simpler approach
+        return new Promise((resolve, reject) => {
           if (!videoRef.current) {
             reject(new Error('Video element not found'));
             return;
@@ -45,43 +45,34 @@ export const useCamera = () => {
           const onLoaded = () => {
             videoRef.current?.removeEventListener('loadedmetadata', onLoaded);
             videoRef.current?.removeEventListener('error', onError);
-            resolve(true);
+            videoRef.current?.play().then(resolve).catch(resolve);
           };
 
-          const onError = (error: any) => {
+          const onError = () => {
             videoRef.current?.removeEventListener('loadedmetadata', onLoaded);
             videoRef.current?.removeEventListener('error', onError);
-            reject(error);
+            reject(new Error('Camera stream error'));
           };
 
           videoRef.current.addEventListener('loadedmetadata', onLoaded);
           videoRef.current.addEventListener('error', onError);
 
-          // Timeout after 5 seconds
+          // Shorter timeout
           setTimeout(() => {
             videoRef.current?.removeEventListener('loadedmetadata', onLoaded);
             videoRef.current?.removeEventListener('error', onError);
-            reject(new Error('Camera initialization timeout'));
-          }, 5000);
+            resolve(true); // Resolve anyway to continue
+          }, 3000);
         });
-        
-        // Play the video
-        try {
-          await videoRef.current.play();
-          console.log('Camera started successfully');
-        } catch (playError) {
-          console.error('Error playing video:', playError);
-          throw new Error('Failed to start camera video stream');
-        }
       }
 
       return true;
     } catch (error) {
       console.error('Error accessing camera:', error);
       
-      // If the requested camera fails, try the opposite one automatically
+      // Try the opposite camera automatically
       const fallbackMode = facingMode === 'environment' ? 'user' : 'environment';
-      console.log(`Primary camera (${facingMode}) failed, trying fallback (${fallbackMode})...`);
+      console.log(`Primary camera failed, trying fallback: ${fallbackMode}`);
       
       try {
         const fallbackConstraints = {
@@ -98,14 +89,13 @@ export const useCamera = () => {
         
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          await videoRef.current.play();
+          return true;
         }
         
-        console.log('Fallback camera started successfully');
         return true;
       } catch (fallbackError) {
         console.error('Fallback camera also failed:', fallbackError);
-        throw new Error('Unable to access any camera. Please check permissions and ensure no other app is using the camera.');
+        throw new Error('Unable to access any camera. Please check permissions.');
       }
     }
   }, []);
