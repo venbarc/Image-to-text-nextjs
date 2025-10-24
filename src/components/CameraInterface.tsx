@@ -6,6 +6,7 @@ interface CameraInterfaceProps {
   onTakePhoto: () => void;
   onStopCamera: () => void;
   onSwitchCamera: () => void;
+  isMobile: boolean;
 }
 
 export const CameraInterface: React.FC<CameraInterfaceProps> = ({
@@ -14,6 +15,7 @@ export const CameraInterface: React.FC<CameraInterfaceProps> = ({
   onTakePhoto,
   onStopCamera,
   onSwitchCamera,
+  isMobile,
 }) => {
   return (
     <div className="fixed inset-0 bg-black z-50 flex flex-col">

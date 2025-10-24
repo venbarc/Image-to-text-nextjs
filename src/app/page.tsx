@@ -4,6 +4,7 @@ import { useRef, useEffect, useCallback } from 'react';
 import { useOCR } from '../hooks/useOCR';
 import { useCamera } from '../hooks/useCamera';
 import { useDragDrop } from '../hooks/useDragDrop';
+import { useDeviceDetection } from '../hooks/useDeviceDetection'; 
 import { UploadArea } from '../components/UploadArea';
 import { CameraInterface } from '../components/CameraInterface';
 import { ResultsSection } from '../components/ResultsSection';
@@ -11,13 +12,18 @@ import { Toast } from '../components/Toast';
 import { ActionButtons } from '../components/ActionButtons';
 
 export default function Home() {
+  const { isMobile } = useDeviceDetection();
+  
+  // Determine initial camera based on device type
+  const initialFacingMode = isMobile ? 'environment' : 'user';
+
   const {
     state,
     updateState,
     convertImageToText,
     clearAll,
     copyToClipboard,
-  } = useOCR();
+  } = useOCR({ initialFacingMode });
 
   const {
     videoRef,
@@ -45,15 +51,19 @@ export default function Home() {
 
   const { isDragOver, dropAreaRef } = useDragDrop(handleFileUpload);
 
-  // Camera handlers
+  // Camera handlers - FIXED: Use the initialFacingMode directly
   const handleStartCamera = useCallback(async () => {
     try {
-      await startCamera(state.facingMode);
+      // console.log('Starting camera for device:', isMobile ? 'mobile' : 'desktop', 'with mode:', initialFacingMode);
+      
+      // Use the device-appropriate facing mode directly
+      await startCamera(initialFacingMode);
       updateState({ showCamera: true });
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Unable to access camera.');
+      console.error('Camera error:', error);
+      alert(error instanceof Error ? error.message : 'Unable to access camera. Please check permissions.');
     }
-  }, [startCamera, state.facingMode, updateState]);
+  }, [startCamera, initialFacingMode, updateState, isMobile]);
 
   const handleStopCamera = useCallback(() => {
     stopCamera();
@@ -85,15 +95,14 @@ export default function Home() {
   const handleClearImage = useCallback(() => {
     updateState({ image: null });
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''; // This clears the file input
+      fileInputRef.current.value = '';
     }
   }, [updateState]);
 
-  // FIX: Update clearAll to also clear the file input
   const handleClearAll = useCallback(() => {
     clearAll();
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''; // Clear the file input
+      fileInputRef.current.value = '';
     }
   }, [clearAll]);
 
@@ -130,6 +139,10 @@ export default function Home() {
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
             Image to Text Converter
           </h1>
+          {/* Debug info - you can remove this later */}
+          {/* <p className="text-sm text-gray-600">
+            {isMobile ? 'Mobile Mode (Back Camera)' : 'Desktop Mode (Front Camera)'} - Current: {state.facingMode}
+          </p> */}
         </div>
 
         {/* Camera Interface */}
@@ -140,6 +153,7 @@ export default function Home() {
             onTakePhoto={handleTakePhoto}
             onStopCamera={handleStopCamera}
             onSwitchCamera={handleSwitchCamera}
+            isMobile={isMobile}
           />
         )}
 

@@ -1,8 +1,23 @@
 import { useState, useCallback } from 'react';
 import { createWorker } from 'tesseract.js';
-import { OCRState } from '@/types';
 
-export const useOCR = () => {
+export interface OCRState {
+  image: string | null;
+  text: string;
+  loading: boolean;
+  showResults: boolean;
+  shouldScroll: boolean;
+  showToast: boolean;
+  isDragOver: boolean;
+  showCamera: boolean;
+  facingMode: 'user' | 'environment';
+}
+
+interface UseOCRProps {
+  initialFacingMode?: 'user' | 'environment';
+}
+
+export const useOCR = ({ initialFacingMode = 'user' }: UseOCRProps = {}) => {
   const [state, setState] = useState<OCRState>({
     image: null,
     text: '',
@@ -12,7 +27,7 @@ export const useOCR = () => {
     showToast: false,
     isDragOver: false,
     showCamera: false,
-    facingMode: 'environment',
+    facingMode: initialFacingMode, 
   });
 
   const updateState = useCallback((updates: Partial<OCRState>) => {
