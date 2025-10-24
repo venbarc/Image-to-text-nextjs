@@ -67,7 +67,7 @@ npm run preview
 - **TypeScript** - Type-safe JavaScript
 - **Next.js** - Fast build tool and dev server
 - **Tesseract.js** - OCR engine for text extraction
-- **CSS3, Bootstrap5** - Modern styling with gradients and animations
+- **CSS3, Tailwind 4** - Modern styling with gradients and animations
 
 ## 📋 How to Use
 
