@@ -199,9 +199,9 @@ export default function Home() {
       {/* Toast Notification */}
       {state.showToast && (
         <Toast
-          message="Text copied to clipboard!"
-          onClose={() => updateState({ showToast: false })}
-          type="success"
+          message={state.toastMessage}
+          onClose={() => updateState({ showToast: false, toastMessage: '' })}
+          type={state.toastMessage === 'No readable text found in image' ? 'warning' : 'success'}
         />
       )}
     </div>
