@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface CameraInterfaceProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -17,6 +17,23 @@ export const CameraInterface: React.FC<CameraInterfaceProps> = ({
   onSwitchCamera,
   isMobile,
 }) => {
+  const [hasAutoSwitched, setHasAutoSwitched] = useState(false);
+
+  // Auto-switch camera when component mounts (on desktop)
+  useEffect(() => {
+    if (!isMobile && !hasAutoSwitched) {
+      console.log('Auto-switching camera on desktop...');
+      
+      // Wait longer to ensure first camera is fully initialized
+      const timer = setTimeout(() => {
+        onSwitchCamera();
+        setHasAutoSwitched(true);
+      }, 1500); // Increased delay to 1.5 seconds
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isMobile, onSwitchCamera, hasAutoSwitched]);
+
   return (
     <div className="fixed inset-0 bg-black z-50 flex flex-col">
       <div className="flex-1 relative flex items-center justify-center">
@@ -46,13 +63,16 @@ export const CameraInterface: React.FC<CameraInterfaceProps> = ({
           <div className="w-16 h-16 bg-white rounded-full border-2 border-gray-400"></div>
         </button>
         
-        <button
-          onClick={onSwitchCamera}
-          className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
-        >
-          <SwitchCameraIcon />
-          Switch Camera
-        </button>
+        {/* Only show switch camera button on mobile devices */}
+        {isMobile && (
+          <button
+            onClick={onSwitchCamera}
+            className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
+          >
+            <SwitchCameraIcon />
+            Switch Camera
+          </button>
+        )}
       </div>
     </div>
   );

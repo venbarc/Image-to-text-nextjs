@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 import { useOCR } from '../hooks/useOCR';
 import { useCamera } from '../hooks/useCamera';
 import { useDragDrop } from '../hooks/useDragDrop';
@@ -36,6 +36,7 @@ export default function Home() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const [hasAutoSwitched, setHasAutoSwitched] = useState(false);
 
   const handleFileUpload = useCallback((file: File) => {
     const reader = new FileReader();
@@ -51,23 +52,61 @@ export default function Home() {
 
   const { isDragOver, dropAreaRef } = useDragDrop(handleFileUpload);
 
-  // Camera handlers - FIXED: Use the initialFacingMode directly
+  // Define handleSwitchCamera first
+  const handleSwitchCamera = useCallback(async () => {
+    const newFacingMode = state.facingMode === 'user' ? 'environment' : 'user';
+    updateState({ facingMode: newFacingMode });
+    
+    if (streamRef.current) {
+      stopCamera();
+      await startCamera(newFacingMode);
+    }
+  }, [state.facingMode, updateState, stopCamera, startCamera, streamRef]);
+
+  // Auto-switch camera if black screen detected (desktop only)
+  const checkAndAutoSwitchCamera = useCallback(async () => {
+    if (!isMobile && !hasAutoSwitched && videoRef.current) {
+      // Wait a bit for camera to initialize
+      setTimeout(async () => {
+        if (videoRef.current && streamRef.current) {
+          // Check if video is playing and has valid dimensions
+          const video = videoRef.current;
+          if (video.videoWidth === 0 || video.videoHeight === 0) {
+            console.log('Black screen detected, auto-switching camera...');
+            await handleSwitchCamera();
+            setHasAutoSwitched(true);
+          }
+        }
+      }, 1000); // Check after 1 second
+    }
+  }, [isMobile, hasAutoSwitched, videoRef, streamRef, handleSwitchCamera]);
+
+  // Camera handlers
   const handleStartCamera = useCallback(async () => {
     try {
-      // console.log('Starting camera for device:', isMobile ? 'mobile' : 'desktop', 'with mode:', initialFacingMode);
+      console.log('Starting camera for device:', isMobile ? 'mobile' : 'desktop');
       
-      // Use the device-appropriate facing mode directly
-      await startCamera(initialFacingMode);
-      updateState({ showCamera: true });
+      // For desktop: start with front camera (it will auto-switch to back)
+      // For mobile: start with back camera (no auto-switch needed)
+      const startingCamera = isMobile ? 'environment' : 'user';
+      
+      await startCamera(startingCamera);
+      updateState({ 
+        showCamera: true,
+        facingMode: startingCamera 
+      });
+      
     } catch (error) {
       console.error('Camera error:', error);
       alert(error instanceof Error ? error.message : 'Unable to access camera. Please check permissions.');
     }
-  }, [startCamera, initialFacingMode, updateState, isMobile]);
+  }, [startCamera, updateState, isMobile]);
 
   const handleStopCamera = useCallback(() => {
     stopCamera();
     updateState({ showCamera: false });
+    // Reset auto-switch flag when camera closes
+    setHasAutoSwitched(false);
   }, [stopCamera, updateState]);
 
   const handleTakePhoto = useCallback(() => {
@@ -81,16 +120,6 @@ export default function Home() {
       handleStopCamera();
     }
   }, [takePhoto, updateState, handleStopCamera]);
-
-  const handleSwitchCamera = useCallback(async () => {
-    const newFacingMode = state.facingMode === 'user' ? 'environment' : 'user';
-    updateState({ facingMode: newFacingMode });
-    
-    if (streamRef.current) {
-      stopCamera();
-      await startCamera(newFacingMode);
-    }
-  }, [state.facingMode, updateState, stopCamera, startCamera, streamRef]);
 
   const handleClearImage = useCallback(() => {
     updateState({ image: null });
@@ -140,9 +169,9 @@ export default function Home() {
             Image to Text Converter
           </h1>
           {/* Debug info - you can remove this later */}
-          {/* <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600">
             {isMobile ? 'Mobile Mode (Back Camera)' : 'Desktop Mode (Front Camera)'} - Current: {state.facingMode}
-          </p> */}
+          </p>
         </div>
 
         {/* Camera Interface */}
