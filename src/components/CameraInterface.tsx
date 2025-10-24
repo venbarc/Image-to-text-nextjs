@@ -22,13 +22,13 @@ export const CameraInterface: React.FC<CameraInterfaceProps> = ({
   // Auto-switch camera when component mounts for both desktop and mobile
   useEffect(() => {
     if (!hasAutoSwitched) {
-      // console.log('Auto-switching camera...');
+      console.log('Auto-switching from front to back camera...');
       
-      // Wait longer to ensure first camera is fully initialized
+      // Wait to ensure first camera is fully initialized
       const timer = setTimeout(() => {
         onSwitchCamera();
         setHasAutoSwitched(true);
-      }, 1000); // 1 second delay
+      }, 800); // Slightly shorter delay for better UX
       
       return () => clearTimeout(timer);
     }

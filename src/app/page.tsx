@@ -15,7 +15,9 @@ export default function Home() {
   const { isMobile } = useDeviceDetection();
   
   // Determine initial camera based on device type
-  const initialFacingMode = isMobile ? 'environment' : 'user';
+  // Mobile: Start with front camera (user) so auto-switch goes to back
+  // Desktop: Start with front camera (user) so auto-switch goes to back
+  const initialFacingMode = 'user'; // Always start with front camera
 
   const {
     state,
@@ -36,7 +38,6 @@ export default function Home() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
-  const [hasAutoSwitched, setHasAutoSwitched] = useState(false);
 
   const handleFileUpload = useCallback((file: File) => {
     const reader = new FileReader();
@@ -63,32 +64,14 @@ export default function Home() {
     }
   }, [state.facingMode, updateState, stopCamera, startCamera, streamRef]);
 
-  // Auto-switch camera if black screen detected (desktop only)
-  const checkAndAutoSwitchCamera = useCallback(async () => {
-    if (!isMobile && !hasAutoSwitched && videoRef.current) {
-      // Wait a bit for camera to initialize
-      setTimeout(async () => {
-        if (videoRef.current && streamRef.current) {
-          // Check if video is playing and has valid dimensions
-          const video = videoRef.current;
-          if (video.videoWidth === 0 || video.videoHeight === 0) {
-            console.log('Black screen detected, auto-switching camera...');
-            await handleSwitchCamera();
-            setHasAutoSwitched(true);
-          }
-        }
-      }, 1000); // Check after 1 second
-    }
-  }, [isMobile, hasAutoSwitched, videoRef, streamRef, handleSwitchCamera]);
-
   // Camera handlers
   const handleStartCamera = useCallback(async () => {
     try {
       console.log('Starting camera for device:', isMobile ? 'mobile' : 'desktop');
       
-      // Start with the camera that usually shows black first
-      // This way the auto-switch will go to the working camera
-      const startingCamera = isMobile ? 'environment' : 'user';
+      // Always start with front camera (user)
+      // This way auto-switch will go to back camera (environment)
+      const startingCamera = 'user';
       
       await startCamera(startingCamera);
       updateState({ 
@@ -105,8 +88,6 @@ export default function Home() {
   const handleStopCamera = useCallback(() => {
     stopCamera();
     updateState({ showCamera: false });
-    // Reset auto-switch flag when camera closes
-    setHasAutoSwitched(false);
   }, [stopCamera, updateState]);
 
   const handleTakePhoto = useCallback(() => {
@@ -169,9 +150,9 @@ export default function Home() {
             Image to Text Converter
           </h1>
           {/* Debug info - you can remove this later */}
-          <p className="text-sm text-gray-600">
-            {isMobile ? 'Mobile Mode (Back Camera)' : 'Desktop Mode (Front Camera)'} - Current: {state.facingMode}
-          </p>
+          {/* <p className="text-sm text-gray-600">
+            {isMobile ? 'Mobile Mode (Starting: Front Camera)' : 'Desktop Mode (Starting: Front Camera)'} - Current: {state.facingMode}
+          </p> */}
         </div>
 
         {/* Camera Interface */}
