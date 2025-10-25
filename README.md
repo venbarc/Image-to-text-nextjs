@@ -33,18 +33,14 @@ Make sure you have the following installed on your system:
    ```bash
    npm install
    ```
-3. **Install Bootstrap**
-   ```bash
-   npm install bootstrap
-   ```
 
-4. **Start the Development Server**
+3. **Start the Development Server**
    ```bash
    npm run dev
    ```
 
-5. **Open Your Browser**
-   - The app will automatically open at `http://localhost:5173`
+4. **Open Your Browser**
+   - The app will automatically open at `http://localhost:3000`
    - If it doesn't open automatically, manually navigate to the URL shown in your terminal
 
 ### Building for Production
