@@ -1,13 +1,13 @@
 # 🖼️ Image to Text Converter
 
-A beautiful and powerful React application that extracts text from images using advanced OCR (Optical Character Recognition) technology. Built with modern web technologies and featuring a sleek dark theme.
+A beautiful and powerful React application that extracts text from images using advanced Gemeni API technology. Built with modern web technologies and featuring a sleek dark theme.
 
 ## ✨ Features
 
 - 🎯 **Drag & Drop Interface** - Easy file upload with drag and drop support
 - 📱 **Responsive Design** - Works perfectly on desktop, tablet, and mobile
 - 🎨 **Dark Theme** - Beautiful dark UI with smooth animations
-- 🔍 **Advanced OCR** - Powered by Tesseract.js for accurate text extraction
+- 🔍 **Advanced AI** - Powered by Gemeni API for accurate text extraction
 - 📊 **Real-time Statistics** - Character, word, and line count analytics
 - 📋 **Copy & Download** - Easy text export options
 - ⚡ **Fast Processing** - Quick image processing with loading indicators
@@ -62,7 +62,7 @@ npm run preview
 - **React 18** - Modern React with hooks
 - **TypeScript** - Type-safe JavaScript
 - **Next.js** - Fast build tool and dev server
-- **Tesseract.js** - OCR engine for text extraction
+- **Gemeni API** - Artificial Intelligence
 - **CSS3, Tailwind 4** - Modern styling with gradients and animations
 
 ## 📋 How to Use
@@ -77,7 +77,7 @@ npm run preview
 
 ### Step 3: Extract Text
 - Click the **"Extract Text"** button
-- Wait for the OCR processing to complete
+- Wait for the Ai processing to complete
 - The app will automatically scroll to show your results
 
 ### Step 4: Use Your Text
@@ -134,9 +134,6 @@ npm run dev
 
 # Build for production
 npm run build
-
-# Install new dependencies
-npm install tesseract.js
 
 # Fix dependency issues
 rm -rf node_modules package-lock.json

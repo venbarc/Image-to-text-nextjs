@@ -60,7 +60,7 @@ export const useOCR = ({ initialFacingMode = 'user' }: UseOCRProps = {}) => {
       const mimeType = matches[1];
       const base64Data = matches[2];
 
-      console.log('Sending image to Gemini API...');
+      // console.log('Sending image to Gemini API...');
       
       const modelName = 'gemini-2.0-flash';
       const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent?key=${apiKey}`;
@@ -71,21 +71,20 @@ export const useOCR = ({ initialFacingMode = 'user' }: UseOCRProps = {}) => {
             parts: [
               { 
                 text: `Analyze the provided image and produce a human-friendly, well-structured textual output.
+                Rules:
+                  1) If the image is a grocery/retail receipt:
+                    - Extract items, quantities, prices, subtotal, tax, and total when present.
+                    - Present them as a clean list with a short summary (merchant, date) where possible.
+                    - Group similar items (e.g., "2 x Milk - PHP 120").
+                  2) If the image contains a question with options:
+                    - Format as: Question: ... then list Options A., B., C., ...
+                    - If an answer appears highlighted or selected, indicate that clearly.
+                  3) If the image contains general text (notes, labels, paragraphs):
+                    - Extract, correct minor OCR mistakes, and present as clean paragraphs or bullet points.
+                  4) Do not invent facts that are not visible in the image.
+                  5) If text is unreadable or uncertain, say: "Some parts were unclear — please re-upload a clearer photo."
 
-Rules:
-1) If the image is a grocery/retail receipt:
-   - Extract items, quantities, prices, subtotal, tax, and total when present.
-   - Present them as a clean list with a short summary (merchant, date) where possible.
-   - Group similar items (e.g., "2 x Milk - PHP 120").
-2) If the image contains a question with options:
-   - Format as: Question: ... then list Options A., B., C., ...
-   - If an answer appears highlighted or selected, indicate that clearly.
-3) If the image contains general text (notes, labels, paragraphs):
-   - Extract, correct minor OCR mistakes, and present as clean paragraphs or bullet points.
-4) Do not invent facts that are not visible in the image.
-5) If text is unreadable or uncertain, say: "Some parts were unclear — please re-upload a clearer photo."
-
-Return output as plain text, using simple Markdown-like formatting (headings, bullet points) so it is easy to read in the app.`
+                Return output as plain text, using simple Markdown-like formatting (headings, bullet points) so it is easy to read in the app.`
               },
               {
                 inline_data: {
@@ -104,7 +103,7 @@ Return output as plain text, using simple Markdown-like formatting (headings, bu
         }
       };
 
-      console.log('Making API request to:', apiUrl);
+      // console.log('Making API request to:', apiUrl);
       
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -114,7 +113,7 @@ Return output as plain text, using simple Markdown-like formatting (headings, bu
         body: JSON.stringify(requestBody)
       });
 
-      console.log('Response status:', response.status);
+      // console.log('Response status:', response.status);
 
       if (!response.ok) {
         let errorMessage = `API error: ${response.status}`;
@@ -130,12 +129,12 @@ Return output as plain text, using simple Markdown-like formatting (headings, bu
       }
 
       const data = await response.json();
-      console.log('API response received:', data);
+      // console.log('API response received:', data);
       
       const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
       
       if (generatedText && generatedText.trim().length > 0) {
-        console.log('Success! Generated text length:', generatedText.length);
+        // console.log('Success! Generated text length:', generatedText.length);
         updateState({ 
           text: generatedText.trim(), 
           showResults: true, 
@@ -143,7 +142,7 @@ Return output as plain text, using simple Markdown-like formatting (headings, bu
           loading: false 
         });
       } else {
-        console.log('No text generated from the image');
+        // console.log('No text generated from the image');
         updateState({ 
           text: '',
           showResults: false,
