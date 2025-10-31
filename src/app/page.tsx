@@ -1,15 +1,15 @@
 'use client';
 
-import { useRef, useEffect, useCallback, useState } from 'react';
-import { useOCR } from '../hooks/useOCR';
+import { Toast } from '../components/Toast';
+import { useOCR } from '../hooks/useGemeniAi';
 import { useCamera } from '../hooks/useCamera';
 import { useDragDrop } from '../hooks/useDragDrop';
-import { useDeviceDetection } from '../hooks/useDeviceDetection'; 
 import { UploadArea } from '../components/UploadArea';
-import { CameraInterface } from '../components/CameraInterface';
-import { ResultsSection } from '../components/ResultsSection';
-import { Toast } from '../components/Toast';
+import { useRef, useEffect, useCallback } from 'react';
 import { ActionButtons } from '../components/ActionButtons';
+import { ResultsSection } from '../components/ResultsSection';
+import { CameraInterface } from '../components/CameraInterface';
+import { useDeviceDetection } from '../hooks/useDeviceDetection'; 
 
 export default function Home() {
   const { isMobile } = useDeviceDetection();
